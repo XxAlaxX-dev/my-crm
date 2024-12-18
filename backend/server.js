@@ -1,10 +1,13 @@
 const express = require("express");
-const dotenv = require("dotenv");
+const connectDB = require("./config/db");
+require('./config/dotenv.config'); // Load environment variables
 
 const app = express();
 
-// Charger les variables d'environnement depuis le fichier .env
-dotenv.config();
+// Connect to database
+connectDB();
+
+
 // Configuration des constantes
 const PORT = process.env.PORT || 4000;
 
