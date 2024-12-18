@@ -1,6 +1,11 @@
 const express = require("express");
 const connectDB = require("./config/db");
 require('./config/dotenv.config'); // Load environment variables
+const authRoutes = require('./routes/authRoutes');
+const userRoutes = require('./routes/userRoutes');
+const contactRoutes = require('./routes/contactRoutes');
+const taskRoutes = require('./routes/taskRoutes');
+const noteRoutes = require('./routes/noteRoutes');
 
 const app = express();
 
@@ -18,6 +23,11 @@ app.get("/", (req, res) => {
     status: "success",
   });
 });
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/contacts', contactRoutes);
+app.use('/api/tasks', taskRoutes);
+app.use('/api/notes', noteRoutes);
 
 // Démarrer le serveur
 app.listen(PORT, () => {
