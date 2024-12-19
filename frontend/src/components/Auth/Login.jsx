@@ -1,24 +1,43 @@
-// frontend/src/components/Auth/Login.js
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import React, { useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../../contexts/AuthContext"; // Import AuthContext
+import authService from "../../services/authService";
 
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false); // Track loading state
   const navigate = useNavigate();
+  const { login } = useContext(AuthContext); // Use login from AuthContext
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(""); // Clear previous errors
+    setIsLoading(true);
+  
+    if (!email || !password) {
+      setError("Email and password are required");
+      setIsLoading(false);
+      return;
+    }
+  
     try {
-      const response = await axios.post('/api/auth/login', { email, password });
-      localStorage.setItem('token', response.data.token);
-      navigate('/dashboard');
+      const response = await authService.login(email, password);
+      if (response && response.token) {
+        login(response.token);
+        window.location.reload(true);
+        navigate("/dashboard/")
+      } else {
+        setError("Invalid email or password");
+      }
     } catch (err) {
-      setError('Invalid email or password');
+      setError(err.message || "An unexpected error occurred");
+    } finally {
+      setIsLoading(false);
     }
   };
+  
 
   return (
     <div className="max-w-md mx-auto mt-8 p-4 bg-white rounded-lg shadow-md">
@@ -41,7 +60,13 @@ const Login = () => {
           required
         />
         {error && <p className="text-red-500 text-center">{error}</p>}
-        <button type="submit" className="w-full bg-blue-500 text-white p-2 rounded">Login</button>
+        <button
+          type="submit"
+          className="w-full bg-blue-500 text-white p-2 rounded"
+          disabled={isLoading} // Disable button when loading
+        >
+          {isLoading ? "Logging in..." : "Login"}
+        </button>
       </form>
     </div>
   );

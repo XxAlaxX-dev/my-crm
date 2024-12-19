@@ -1,6 +1,7 @@
 const express = require("express");
 const connectDB = require("./config/db");
-require('./config/dotenv.config'); // Load environment variables
+const cors = require("cors");
+require('./config/dotenv.config'); // Charger les variables d'environnement
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const contactRoutes = require('./routes/contactRoutes');
@@ -9,9 +10,25 @@ const noteRoutes = require('./routes/noteRoutes');
 
 const app = express();
 
-// Connect to database
+// Connexion à la base de données
 connectDB();
 
+// CORS : autoriser l'origine correcte
+const allowedOrigins = ['http://localhost:5173'];  // Remplacez par l'origine de votre frontend si nécessaire
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Autoriser les requêtes provenant des origines définies
+    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('CORS not allowed'));
+    }
+  },
+  methods: ["GET", "POST", "PUT", "DELETE"], // Méthodes autorisées
+  allowedHeaders: ["Content-Type", "Authorization"], // En-têtes autorisés
+}));
+app.use(express.json()); // Ajoutez ce middleware pour parser les corps JSON
 
 // Configuration des constantes
 const PORT = process.env.PORT || 4000;
@@ -23,6 +40,7 @@ app.get("/", (req, res) => {
     status: "success",
   });
 });
+
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/contacts', contactRoutes);

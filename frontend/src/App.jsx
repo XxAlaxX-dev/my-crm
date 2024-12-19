@@ -1,46 +1,39 @@
-import React, { useContext } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import { AuthProvider, AuthContext } from './contexts/AuthContext'; // Import AuthContext and AuthProvider
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Dashboard from './pages/Dashboard';
-import Contacts from './pages/Contacts';
-import Tasks from './pages/Tasks';
-import Notes from './pages/Notes';
-import PrivateRoute from './components/PrivateRoute'; // For protected routes
+import React, { useContext } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { AuthProvider, AuthContext } from "./contexts/AuthContext";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Dashboard from "./pages/Dashboard";
+import Contacts from "./pages/Contacts";
+import Tasks from "./pages/Tasks";
+import Notes from "./pages/Notes";
+import PrivateRoute from "./components/PrivateRoute";
+import Sidebar from "./components/Sidebar/Sidebar"; // Sidebar component
+import AddTask from "./components/Tasks/AddTask";
+import UpdateTask from "./components/Tasks/UpdateTask";
+const AppContent = () => {
+  const { user, logout } = useContext(AuthContext);
 
-function App() {
-  const { user, logout } = useContext(AuthContext); // Access auth context
-  
   return (
-    <AuthProvider>
-      <Router>
-        <div className="App">
-          <nav className="bg-blue-500 p-4 text-white">
-            <ul className="flex space-x-4">
-              {user ? (
-                <>
-                  <li><Link to="/dashboard">Dashboard</Link></li>
-                  <li><Link to="/contacts">Contacts</Link></li>
-                  <li><Link to="/tasks">Tasks</Link></li>
-                  <li><Link to="/notes">Notes</Link></li>
-                  <li><button onClick={logout} className="bg-red-500 p-2 rounded">Logout</button></li>
-                </>
-              ) : (
-                <>
-                  <li><Link to="/login">Login</Link></li>
-                  <li><Link to="/register">Register</Link></li>
-                </>
-              )}
-            </ul>
-          </nav>
-          <div className="container mx-auto mt-4">
+    <Router>
+      <div className="flex h-screen bg-gray-100 text-gray-800">
+        {/* Sidebar for logged-in users */}
+        {user && <Sidebar logout={logout} />}
+        <div className={`flex-1 ${user ? "ml-64" : ""} overflow-y-auto`}>
+          <header className="bg-white shadow-md p-4">
+            <div className="max-w-7xl mx-auto">
+              <h1 className="text-2xl font-bold text-gray-900">
+                {user ? "Welcome to Your CRM" : "CRM Application"}
+              </h1>
+            </div>
+          </header>
+          <main className="py-6 px-4">
             <Routes>
               {/* Public Routes */}
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
-              
-              {/* Protected Routes (only accessible if user is logged in) */}
+
+              {/* Protected Routes */}
               <Route
                 path="/dashboard"
                 element={
@@ -65,6 +58,8 @@ function App() {
                   </PrivateRoute>
                 }
               />
+              <Route path="/add-task" element={<AddTask />} />
+              <Route path="/tasks/update/:id" element={<UpdateTask />} />
               <Route
                 path="/notes"
                 element={
@@ -74,11 +69,17 @@ function App() {
                 }
               />
             </Routes>
-          </div>
+          </main>
         </div>
-      </Router>
-    </AuthProvider>
+      </div>
+    </Router>
   );
-}
+};
+
+const App = () => (
+  <AuthProvider>
+    <AppContent />
+  </AuthProvider>
+);
 
 export default App;
