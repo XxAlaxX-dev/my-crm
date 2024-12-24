@@ -1,26 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { toast } from "react-toastify"; // Import toast
-import {
-  fetchContacts,
-  deleteContact,
-} from "../../redux/actions/contactActions";
+import { fetchContacts, deleteContact } from "../../redux/actions/contactActions";
 import { Link, useNavigate } from "react-router-dom";
 import ContactItem from "./ContactItem";
 
 const ContactList = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const {
-    contacts = [],
-    loading,
-    error,
-  } = useSelector((state) => state.contacts);
+  const { contacts = [], loading, error } = useSelector((state) => state.contacts);
   const [selectedContact, setSelectedContact] = useState(null);
   const [filters, setFilters] = useState({
     firstName: "",
     lastName: "",
     email: "",
+    company: "",
+    phone: "",
   });
 
   useEffect(() => {
@@ -57,11 +52,15 @@ const ContactList = () => {
     const firstName = (contact.firstName || "").toLowerCase();
     const lastName = (contact.lastName || "").toLowerCase();
     const email = (contact.email || "").toLowerCase();
+    const company = (contact.company || "").toLowerCase();
+    const phone = (contact.phone || "").toLowerCase();
 
     return (
       firstName.includes(filters.firstName.toLowerCase()) &&
       lastName.includes(filters.lastName.toLowerCase()) &&
-      email.includes(filters.email.toLowerCase())
+      email.includes(filters.email.toLowerCase()) &&
+      company.includes(filters.company.toLowerCase()) &&
+      phone.includes(filters.phone.toLowerCase())
     );
   });
 
@@ -86,6 +85,7 @@ const ContactList = () => {
     <div className="container mx-auto p-6">
       <h2 className="text-2xl font-bold text-gray-800 mb-6">Contact List</h2>
 
+      {/* Filter Inputs */}
       <div className="mb-4 flex gap-4">
         <input
           type="text"
@@ -111,8 +111,25 @@ const ContactList = () => {
           placeholder="Filter by Email"
           className="border p-2 rounded-md"
         />
+        <input
+          type="text"
+          name="company"
+          value={filters.company}
+          onChange={handleFilterChange}
+          placeholder="Filter by Company"
+          className="border p-2 rounded-md"
+        />
+        <input
+          type="text"
+          name="phone"
+          value={filters.phone}
+          onChange={handleFilterChange}
+          placeholder="Filter by Phone"
+          className="border p-2 rounded-md"
+        />
       </div>
 
+      {/* Contact Table */}
       {filteredContacts.length === 0 ? (
         <p className="text-center text-gray-600">No contacts available.</p>
       ) : (
@@ -123,41 +140,46 @@ const ContactList = () => {
                 <th className="py-3 px-6">First Name</th>
                 <th className="py-3 px-6">Last Name</th>
                 <th className="py-3 px-6">Email</th>
+                <th className="py-3 px-6">Company</th>
+                <th className="py-3 px-6">Phone</th>
                 <th className="py-3 px-6">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {filteredContacts.map((contact) => (
-                <tr
-                  key={contact._id}
-                  className="border-t hover:bg-gray-50 cursor-pointer"
-                  onClick={() => handleRowClick(contact)}
-                >
-                  <td className="py-4 px-6">{contact.firstName}</td>
-                  <td className="py-4 px-6">{contact.lastName}</td>
-                  <td className="py-4 px-6">{contact.email}</td>
-                  <td className="py-4 px-6">
-                    <Link
-                      to={`/update-contact/${contact._id}`}
-                      className="text-blue-500 hover:text-blue-700"
-                    >
-                      Edit
-                    </Link>
+  {filteredContacts.map((contact) => (
+    <tr
+      key={contact._id}
+      className="border-t hover:bg-gray-50 cursor-pointer"
+      onClick={() => handleRowClick(contact)}
+    >
+      <td className="py-4 px-6">{contact.firstName}</td>
+      <td className="py-4 px-6">{contact.lastName}</td>
+      <td className="py-4 px-6">{contact.email}</td>
+      <td className="py-4 px-6">{contact.company}</td>
+      <td className="py-4 px-6">{contact.phone ? `+216 ${contact.phone}` : "N/A"}</td>
+      <td className="py-4 px-6">
+        <Link
+          to={`/update-contact/${contact._id}`}
+          className="text-blue-500 hover:text-blue-700"
+        >
+          Edit
+        </Link>
 
-                    <button
-                      className="ml-3 text-red-500 hover:text-red-700"
-                      onClick={(e) => handleDelete(contact._id, e)}
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
+        <button
+          className="ml-3 text-red-500 hover:text-red-700"
+          onClick={(e) => handleDelete(contact._id, e)}
+        >
+          Delete
+        </button>
+      </td>
+    </tr>
+  ))}
+</tbody>
           </table>
         </div>
       )}
 
+      {/* Contact Modal */}
       {selectedContact && (
         <div
           className="fixed inset-0 flex justify-center items-center bg-gray-800 bg-opacity-50 z-50"
