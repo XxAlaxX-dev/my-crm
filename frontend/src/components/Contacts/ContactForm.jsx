@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { createContact } from "../../redux/actions/contactActions";
+import { toast } from "react-toastify"; // Import toast
 
 const ContactForm = ({ onClose }) => {
   const [formData, setFormData] = useState({
@@ -17,15 +18,16 @@ const ContactForm = ({ onClose }) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    dispatch(createContact(formData))
-      .then(() => {
-        onClose(); // Close the form after submission
-      })
-      .catch((error) => {
-        console.error("Failed to create contact", error);
-      });
+    try {
+      await dispatch(createContact(formData)); // Dispatch action to add contact
+      toast.success("Contact added successfully!"); // Show success toast
+      onClose(); // Close the form modal or popup
+    } catch (error) {
+      console.error("Failed to create contact", error);
+      toast.error("Failed to add contact. Please try again."); // Show error toast
+    }
   };
 
   return (
@@ -83,7 +85,5 @@ const ContactForm = ({ onClose }) => {
     </form>
   );
 };
-
-
 
 export default ContactForm;

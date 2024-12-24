@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, useNavigate } from "react-router-dom";
 import { fetchContacts, updateContact } from "../../redux/actions/contactActions";
+import { toast } from "react-toastify"; // Import toast
 
 const UpdateContact = () => {
   const { id } = useParams(); // Extract the contact ID from the URL
@@ -42,17 +43,17 @@ const UpdateContact = () => {
     e.preventDefault();
 
     if (!formData.firstName || !formData.lastName || !formData.email) {
-      alert("Please fill in all required fields.");
+      toast.error("Please fill in all required fields."); // Show error toast
       return;
     }
 
     try {
       await dispatch(updateContact(id, formData)); // Update the contact
-      alert("Contact updated successfully!");
+      toast.success("Contact updated successfully!"); // Show success toast
       navigate("/contacts"); // Navigate back to the contact list
     } catch (error) {
       console.error("Error updating contact:", error);
-      alert("An error occurred while updating the contact.");
+      toast.error("An error occurred while updating the contact."); // Show error toast
     }
   };
 

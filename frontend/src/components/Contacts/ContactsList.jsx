@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
+import { toast } from "react-toastify"; // Import toast
 import {
   fetchContacts,
   deleteContact,
@@ -43,11 +44,11 @@ const ContactList = () => {
     if (window.confirm("Are you sure you want to delete this contact?")) {
       try {
         await dispatch(deleteContact(id));
-        alert("Contact deleted successfully!");
+        toast.success("Contact deleted successfully!"); // Success toast
         dispatch(fetchContacts()); // Refresh contacts after deletion
       } catch (error) {
         console.error("Error deleting contact:", error.message);
-        alert("Failed to delete contact: " + error.message);
+        toast.error("Failed to delete contact: " + error.message); // Error toast
       }
     }
   };
@@ -73,6 +74,7 @@ const ContactList = () => {
   }
 
   if (error) {
+    toast.error(`Error: ${error}`); // Error toast for fetch operation
     return (
       <div className="text-red-600 font-semibold text-center">
         <p>Error: {error}</p>

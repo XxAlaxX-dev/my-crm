@@ -15,12 +15,16 @@ import UpdateContact from "./components/Contacts/UpdateContact";
 import { Provider } from "react-redux";
 import store from "./redux/store";
 import ContactItem from "./components/Contacts/ContactItem";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 
 const AppContent = () => {
   const { user, logout } = useContext(AuthContext);
 
   return (
     <Router>
+       <ToastContainer position="top-right" autoClose={3000} />
       <div className="flex h-screen bg-gradient-to-r from-gray-50 to-gray-200 text-gray-800">
         {user && <Sidebar logout={logout} />}
         <div className={`flex-1 ${user ? "ml-64" : ""} overflow-y-auto`}>
