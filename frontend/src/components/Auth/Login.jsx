@@ -1,43 +1,36 @@
 import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../../contexts/AuthContext"; // Import AuthContext
-import authService from "../../services/authService";
+import { AuthContext } from "../../contexts/AuthContext";
+import { Link } from "react-router-dom"; // Import Link from react-router-dom
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false); // Track loading state
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const { login } = useContext(AuthContext); // Use login from AuthContext
+  const { login } = useContext(AuthContext);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(""); // Clear previous errors
+    setError("");
     setIsLoading(true);
-  
+
     if (!email || !password) {
       setError("Email and password are required");
       setIsLoading(false);
       return;
     }
-  
+
     try {
-      const response = await authService.login(email, password);
-      if (response && response.token) {
-        login(response.token);
-        window.location.reload(true);
-        navigate("/dashboard/")
-      } else {
-        setError("Invalid email or password");
-      }
+      await login(email, password);
+      navigate("/dashboard");
     } catch (err) {
       setError(err.message || "An unexpected error occurred");
     } finally {
       setIsLoading(false);
     }
   };
-  
 
   return (
     <div className="max-w-md mx-auto mt-8 p-4 bg-white rounded-lg shadow-md">
@@ -63,11 +56,21 @@ const Login = () => {
         <button
           type="submit"
           className="w-full bg-blue-500 text-white p-2 rounded"
-          disabled={isLoading} // Disable button when loading
+          disabled={isLoading}
         >
           {isLoading ? "Logging in..." : "Login"}
         </button>
       </form>
+
+      {/* Register Link */}
+      <div className="text-center mt-4">
+        <p className="text-sm text-gray-600">
+          Don't have an account?{" "}
+          <Link to="/register" className="text-blue-500 hover:text-blue-700">
+            Register here
+          </Link>
+        </p>
+      </div>
     </div>
   );
 };

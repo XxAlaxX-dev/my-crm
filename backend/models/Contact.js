@@ -43,6 +43,11 @@ const contactSchema = mongoose.Schema({
       ref: 'Task',
     },
   ],
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: 'User', // Reference to the User model
+  },
 }, {
   timestamps: true, // Automatically adds createdAt and updatedAt fields
 });

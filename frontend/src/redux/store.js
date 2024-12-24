@@ -1,16 +1,12 @@
-// frontend/src/redux/store.js
-import { createStore, combineReducers, applyMiddleware } from 'redux';
-import thunk from 'redux-thunk'; // For handling asynchronous actions
-import authReducer from './reducers/authReducer';
-import contactReducer from './reducers/contactReducer';
-import taskReducer from './reducers/taskReducer';
+import { configureStore } from "@reduxjs/toolkit";
+import {thunk} from "redux-thunk";
+import contactReducer from "./reducers/contactReducer";
 
-const rootReducer = combineReducers({
-  auth: authReducer,
-  contacts: contactReducer,
-  tasks: taskReducer
+const store = configureStore({
+  reducer: {
+    contacts: contactReducer,
+  },
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(thunk),
 });
-
-const store = createStore(rootReducer, applyMiddleware(thunk));
 
 export default store;

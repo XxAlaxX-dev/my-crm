@@ -51,6 +51,7 @@ const register = async (userData) => {
 // Logout service
 const logout = () => {
   localStorage.removeItem('user');
+  localStorage.removeItem('token');
 };
 
 // Get current user service (from local storage)

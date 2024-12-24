@@ -77,3 +77,172 @@ crm-mern/
 │   ├── package.json
 │
 ├── README.md
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import React, { useEffect, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { fetchContacts, deleteContact } from "../../redux/actions/contactActions";
+import { Link, useNavigate } from "react-router-dom";
+
+const ContactList = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { contacts = [], loading, error } = useSelector((state) => state.contacts);
+  const [selectedContact, setSelectedContact] = useState(null);
+  const [filters, setFilters] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+  });
+
+  useEffect(() => {
+    dispatch(fetchContacts());
+  }, [dispatch]);
+
+  const handleRowClick = (contact) => {
+    setSelectedContact(contact);
+    navigate(`/update-contact/${contact._id}`);
+  };
+
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters({
+      ...filters,
+      [name]: value,
+    });
+  };
+
+  const handleDelete = async (id, e) => {
+    e.stopPropagation();
+    if (window.confirm("Are you sure you want to delete this contact?")) {
+      try {
+        await dispatch(deleteContact(id));
+        alert("Contact deleted successfully!");
+        dispatch(fetchContacts()); // Refresh contacts after deletion
+      } catch (error) {
+        console.error("Error deleting contact:", error.message);
+        alert("Failed to delete contact: " + error.message);
+      }
+    }
+  };
+
+  const filteredContacts = contacts.filter((contact) => {
+    const firstName = (contact.firstName || "").toLowerCase();
+    const lastName = (contact.lastName || "").toLowerCase();
+    const email = (contact.email || "").toLowerCase();
+
+    return (
+      firstName.includes(filters.firstName.toLowerCase()) &&
+      lastName.includes(filters.lastName.toLowerCase()) &&
+      email.includes(filters.email.toLowerCase())
+    );
+  });
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center p-6">
+        <div className="spinner-border animate-spin inline-block w-8 h-8 border-4 rounded-full border-t-transparent border-primary"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-red-600 font-semibold text-center">
+        <p>Error: {error}</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="container mx-auto p-6">
+      <h2 className="text-2xl font-bold text-gray-800 mb-6">Contact List</h2>
+
+      <div className="mb-4 flex gap-4">
+        <input
+          type="text"
+          name="firstName"
+          value={filters.firstName}
+          onChange={handleFilterChange}
+          placeholder="Filter by First Name"
+          className="border p-2 rounded-md"
+        />
+        <input
+          type="text"
+          name="lastName"
+          value={filters.lastName}
+          onChange={handleFilterChange}
+          placeholder="Filter by Last Name"
+          className="border p-2 rounded-md"
+        />
+        <input
+          type="email"
+          name="email"
+          value={filters.email}
+          onChange={handleFilterChange}
+          placeholder="Filter by Email"
+          className="border p-2 rounded-md"
+        />
+      </div>
+
+      {filteredContacts.length === 0 ? (
+        <p className="text-center text-gray-600">No contacts available.</p>
+      ) : (
+        <div className="overflow-x-auto bg-white shadow-lg rounded-lg">
+          <table className="min-w-full table-auto">
+            <thead className="bg-gray-200 text-sm text-left text-gray-700">
+              <tr>
+                <th className="py-3 px-6">First Name</th>
+                <th className="py-3 px-6">Last Name</th>
+                <th className="py-3 px-6">Email</th>
+                <th className="py-3 px-6">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredContacts.map((contact) => (
+                <tr
+                  key={contact._id}
+                  className="border-t hover:bg-gray-50 cursor-pointer"
+                  onClick={() => handleRowClick(contact)}
+                >
+                  <td className="py-4 px-6">{contact.firstName}</td>
+                  <td className="py-4 px-6">{contact.lastName}</td>
+                  <td className="py-4 px-6">{contact.email}</td>
+                  <td className="py-4 px-6">
+                    <Link
+                      to={`/update-contact/${contact._id}`}
+                      className="text-blue-500 hover:text-blue-700"
+                    >
+                      Edit
+                    </Link>
+                    <button
+                      className="ml-3 text-red-500 hover:text-red-700"
+                      onClick={(e) => handleDelete(contact._id, e)}
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default ContactList;

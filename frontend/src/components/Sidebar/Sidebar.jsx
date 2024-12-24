@@ -56,16 +56,16 @@ const Sidebar = ({ logout }) => {
       {/* Logout Button with Confirmation */}
       <div className="px-4 py-3 mt-auto">
         {isLogoutConfirming ? (
-          <div className="flex items-center justify-between">
+          <div className="flex space-x-4 justify-center">
             <button
               onClick={logout}
-              className="w-32 py-2 bg-red-600 hover:bg-red-700 text-white text-lg font-semibold transition-all ease-in-out duration-200 rounded-lg shadow-md"
+              className="w-32 py-2 bg-red-600 hover:bg-red-700 text-white text-lg font-semibold transition-all ease-in-out duration-200 rounded-lg shadow-md transform hover:scale-105"
             >
               Confirm Logout
             </button>
             <button
               onClick={toggleLogoutConfirmation}
-              className="w-32 py-2 bg-gray-500 hover:bg-gray-600 text-white text-lg font-semibold transition-all ease-in-out duration-200 rounded-lg"
+              className="w-32 py-2 bg-gray-500 hover:bg-gray-600 text-white text-lg font-semibold transition-all ease-in-out duration-200 rounded-lg transform hover:scale-105"
             >
               Cancel
             </button>
@@ -73,7 +73,7 @@ const Sidebar = ({ logout }) => {
         ) : (
           <button
             onClick={toggleLogoutConfirmation}
-            className="w-full py-3 bg-red-600 hover:bg-red-700 text-white text-lg font-semibold transition-all ease-in-out duration-200 rounded-lg shadow-md"
+            className="w-full py-3 bg-red-600 hover:bg-red-700 text-white text-lg font-semibold transition-all ease-in-out duration-200 rounded-lg shadow-md transform hover:scale-105"
           >
             Logout
           </button>
