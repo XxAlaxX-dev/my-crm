@@ -20,7 +20,7 @@ const getConfig = () => {
   };
 };
 
-// Fetch all users
+// Fetch all users  
 export const getUsers = async () => {
   try {
     const config = getConfig();
