@@ -9,14 +9,15 @@ import Tasks from "./pages/Tasks";
 import Notes from "./pages/Notes";
 import PrivateRoute from "./components/PrivateRoute";
 import Sidebar from "./components/Sidebar/Sidebar";
-import AddTask from "./components/Tasks/AddTask";
-import UpdateTask from "./components/Tasks/UpdateTask";
+
 import UpdateContact from "./components/Contacts/UpdateContact";
 import { Provider } from "react-redux";
 import store from "./redux/store";
 import ContactItem from "./components/Contacts/ContactItem";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import UpdateTaskPage from "./components/Tasks/UpdateTaskPage";
+import CreateTaskForm from "./components/Tasks/CreateTaskForm";
 
 
 const AppContent = () => {
@@ -54,8 +55,11 @@ const AppContent = () => {
 
               <Route path="/update-contact/:id" element={<PrivateRoute><UpdateContact /></PrivateRoute>} />
               <Route path="/tasks" element={<PrivateRoute><Tasks /></PrivateRoute>} />
-              <Route path="/add-task" element={<PrivateRoute><AddTask /></PrivateRoute>} />
-              <Route path="/tasks/update/:id" element={<PrivateRoute><UpdateTask /></PrivateRoute>} />
+              <Route path="/update-task/:id"  element={<PrivateRoute><UpdateTaskPage/></PrivateRoute>} />
+              <Route path="/create-task"  element={<PrivateRoute><CreateTaskForm/></PrivateRoute>} />
+
+        
+              
               <Route path="/notes" element={<PrivateRoute><Notes /></PrivateRoute>} />
 
               <Route path="/" element={user ? <Navigate to="/dashboard" /> : <Login />} />

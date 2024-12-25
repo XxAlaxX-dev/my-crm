@@ -1,67 +1,53 @@
-// frontend/src/redux/actions/taskActions.js
-import axios from 'axios';
-import { FETCH_TASKS_SUCCESS, FETCH_TASKS_FAILURE, CREATE_TASK_SUCCESS, CREATE_TASK_FAILURE, UPDATE_TASK_SUCCESS, DELETE_TASK_SUCCESS } from '../types';
+import { 
+  FETCH_TASKS_REQUEST,
+  FETCH_TASKS_SUCCESS,
+  FETCH_TASKS_FAILURE,
+  CREATE_TASK_SUCCESS,
+  DELETE_TASK_SUCCESS,
+  UPDATE_TASK_SUCCESS,
+} from "../types";
+import { getAllTasks, createTask, updateTask, deleteTaskFromAPI } from "../../services/taskService";
 
 // Fetch tasks
 export const fetchTasks = () => async (dispatch) => {
+  dispatch({ type: FETCH_TASKS_REQUEST });
   try {
-    const response = await axios.get('/api/tasks');
-    dispatch({
-      type: FETCH_TASKS_SUCCESS,
-      payload: response.data
-    });
+    const tasks = await getAllTasks();
+    dispatch({ type: FETCH_TASKS_SUCCESS, payload: tasks });
   } catch (error) {
-    dispatch({
-      type: FETCH_TASKS_FAILURE,
-      payload: error.response.data.message || 'Failed to fetch tasks'
-    });
+    dispatch({ type: FETCH_TASKS_FAILURE, payload: error.message });
   }
 };
 
-// Create a new task
-export const createTask = (taskData) => async (dispatch) => {
+// Create task
+export const createNewTask = (taskData) => async (dispatch) => {
   try {
-    const response = await axios.post('/api/tasks', taskData);
-    dispatch({
-      type: CREATE_TASK_SUCCESS,
-      payload: response.data
-    });
+    const newTask = await createTask(taskData);
+    dispatch({ type: CREATE_TASK_SUCCESS, payload: newTask });
   } catch (error) {
-    dispatch({
-      type: CREATE_TASK_FAILURE,
-      payload: error.response.data.message || 'Failed to create task'
-    });
+    dispatch({ type: FETCH_TASKS_FAILURE, payload: error.message });
   }
 };
 
-// Update a task
-export const updateTask = (taskId, taskData) => async (dispatch) => {
+// Delete task
+
+
+export const deleteTask = (id) => async (dispatch) => {
   try {
-    const response = await axios.put(`/api/tasks/${taskId}`, taskData);
-    dispatch({
-      type: UPDATE_TASK_SUCCESS,
-      payload: response.data
-    });
+    await deleteTaskFromAPI(id); // Call the service method
+    dispatch({ type: DELETE_TASK_SUCCESS, payload: id });
   } catch (error) {
-    dispatch({
-      type: CREATE_TASK_FAILURE,
-      payload: error.response.data.message || 'Failed to update task'
-    });
+    dispatch({ type: FETCH_TASKS_FAILURE, payload: error.response?.data?.message || error.message });
   }
 };
 
-// Delete a task
-export const deleteTask = (taskId) => async (dispatch) => {
+
+// Update task
+export const updateTaskDetails = (id, taskData) => async (dispatch) => {
   try {
-    await axios.delete(`/api/tasks/${taskId}`);
-    dispatch({
-      type: DELETE_TASK_SUCCESS,
-      payload: taskId
-    });
+    const updatedTask = await updateTask(id, taskData); // Call the service method
+    dispatch({ type: UPDATE_TASK_SUCCESS, payload: updatedTask });
   } catch (error) {
-    dispatch({
-      type: CREATE_TASK_FAILURE,
-      payload: error.response.data.message || 'Failed to delete task'
-    });
+    dispatch({ type: FETCH_TASKS_FAILURE, payload: error.response?.data?.message || error.message });
   }
 };

@@ -1,154 +1,222 @@
-import React, { useEffect, useState } from 'react';
-import { MdCheckCircle, MdHourglassEmpty, MdCancel, MdEdit, MdDelete, MdAdd, MdSearch } from 'react-icons/md';
-import { useNavigate } from 'react-router-dom';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import taskService from '../../services/taskService';
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom"; // Import Link from react-router-dom
+import { fetchTasks, deleteTask } from "../../redux/actions/taskActions";
+import { MdOutlineUpdate } from "react-icons/md";
+import { MdDelete } from "react-icons/md";
 
 const TaskList = () => {
-  const [tasks, setTasks] = useState([]);
-  const [error, setError] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [taskToDelete, setTaskToDelete] = useState(null);
-  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { tasks, loading, error } = useSelector((state) => state.tasks);
+
+  const [filteredTasks, setFilteredTasks] = useState(tasks);
+  const [filters, setFilters] = useState({
+    title: "",
+    description: "",
+    dueDate: "",
+    assignedTo: "",
+    status: "",
+  });
 
   useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        const response = await taskService.getTasks();
-        setTasks(response);
-      } catch (error) {
-        console.error('Error fetching tasks', error);
-        setError('Failed to fetch tasks. Please try again later.');
-        toast.error('Failed to fetch tasks. Please try again later.');
-      }
-    };
-    fetchTasks();
-  }, []);
+    dispatch(fetchTasks());
+  }, [dispatch]);
 
-  const handleDelete = (taskId) => {
-    setTaskToDelete(taskId);
-    setDeleteModalOpen(true);
-  };
+  useEffect(() => {
+    setFilteredTasks(tasks);
+  }, [tasks]);
 
-  const confirmDelete = async () => {
-    if (taskToDelete) {
-      try {
-        await taskService.deleteTask(taskToDelete);
-        setTasks(tasks.filter((task) => task._id !== taskToDelete));
-        toast.success('Task deleted successfully!');
-        setDeleteModalOpen(false);
-      } catch (error) {
-        console.error('Error deleting task', error);
-        setError('Failed to delete task. Please try again later.');
-        toast.error('Failed to delete task. Please try again later.');
-      }
+  const handleDelete = (id) => {
+    if (window.confirm("Are you sure you want to delete this task?")) {
+      dispatch(deleteTask(id))
+        .then(() => {
+          toast.success("Task deleted successfully");
+          dispatch(fetchTasks()); // Refresh the task list
+        })
+        .catch((error) => {
+          toast.error(error.response?.data?.message || "Failed to delete task");
+        });
     }
   };
 
-  const closeDeleteModal = () => {
-    setDeleteModalOpen(false);
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters({ ...filters, [name]: value });
   };
 
-  const handleEdit = (taskId) => {
-    navigate(`/update-task/${taskId}`);
+  const applyFilters = () => {
+    let filtered = tasks;
+    if (filters.title)
+      filtered = filtered.filter((task) =>
+        task.title.toLowerCase().includes(filters.title.toLowerCase())
+      );
+    if (filters.description)
+      filtered = filtered.filter((task) =>
+        task.description
+          .toLowerCase()
+          .includes(filters.description.toLowerCase())
+      );
+    if (filters.dueDate)
+      filtered = filtered.filter(
+        (task) =>
+          task.dueDate &&
+          new Date(task.dueDate).toLocaleDateString().includes(filters.dueDate)
+      );
+    if (filters.assignedTo)
+      filtered = filtered.filter(
+        (task) =>
+          task.assignedTo &&
+          task.assignedTo.name
+            .toLowerCase()
+            .includes(filters.assignedTo.toLowerCase())
+      );
+    if (filters.status)
+      filtered = filtered.filter(
+        (task) => task.completed === (filters.status === "Completed")
+      );
+    setFilteredTasks(filtered);
   };
 
-  const navigateToAddTask = () => {
-    navigate('/add-task');
-  };
-
-  const filteredTasks = tasks.filter((task) =>
-    task.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const DeleteConfirmationModal = ({ onClose, onConfirm }) => (
-    <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center transition-all duration-300 ease-in-out">
-      <div className="bg-white p-6 rounded-lg shadow-xl w-96 transform scale-100 hover:scale-105 transition-all duration-300 ease-in-out">
-        <h3 className="text-lg font-semibold text-gray-800">Are you sure you want to delete this task?</h3>
-        <div className="mt-4 flex justify-between">
-          <button
-            onClick={onClose}
-            className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors duration-200"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={onConfirm}
-            className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors duration-200"
-          >
-            Delete
-          </button>
-        </div>
+  if (loading)
+    return <div className="text-center text-lg font-semibold">Loading...</div>;
+  if (error)
+    return (
+      <div className="text-center text-lg font-semibold text-red-500">
+        Error: {error}
       </div>
-    </div>
-  );
+    );
 
   return (
-    <div className="p-8 bg-gradient-to-r from-gray-100 to-gray-200 min-h-screen">
-      <div className="flex justify-between items-center mb-8">
-        <h2 className="text-4xl font-semibold text-gray-800">Tasks</h2>
-        <div className="flex items-center space-x-6">
-          <div className="relative">
-            <MdSearch size={20} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500" />
-            <input
-              type="text"
-              className="w-72 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Search tasks"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-          <button
-            onClick={navigateToAddTask}
-            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition duration-300"
+    <div className="bg-white shadow-xl rounded-lg p-6">
+      <h2 className="text-3xl font-semibold text-gray-800 mb-6 text-center">
+        Your Tasks
+      </h2>
+
+      {/* Filters */}
+      <div className="bg-gray-50 p-4 rounded-md shadow-md mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+          <input
+            type="text"
+            name="title"
+            value={filters.title}
+            onChange={handleFilterChange}
+            placeholder="Filter by Title"
+            className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <input
+            type="text"
+            name="description"
+            value={filters.description}
+            onChange={handleFilterChange}
+            placeholder="Filter by Description"
+            className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <input
+            type="date"
+            name="dueDate"
+            value={filters.dueDate}
+            onChange={handleFilterChange}
+            placeholder="Filter by Due Date"
+            className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <input
+            type="text"
+            name="assignedTo"
+            value={filters.assignedTo}
+            onChange={handleFilterChange}
+            placeholder="Filter by Assigned To"
+            className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <select
+            name="status"
+            value={filters.status}
+            onChange={handleFilterChange}
+            className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <MdAdd size={20} className="inline-block mr-2" />
-            Add Task
+            <option value="">Filter by Status</option>
+            <option value="Completed">Completed</option>
+            <option value="Pending">Pending</option>
+          </select>
+          <button
+            onClick={applyFilters}
+            className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            Apply Filters
           </button>
         </div>
       </div>
 
-      {error && <div className="text-red-600 text-lg">{error}</div>}
-
-      <ul>
-        {filteredTasks.length === 0 ? (
-          <li className="text-center text-lg text-gray-700">No tasks found.</li>
-        ) : (
-          filteredTasks.map((task) => (
-            <li key={task._id} className="flex justify-between items-center p-4 mb-4 bg-white shadow-lg rounded-lg">
-              <div className="flex items-center">
-                <span className="font-semibold">{task.title}</span>
-                <span className="ml-2 text-sm text-gray-500">{task.dueDate}</span>
-              </div>
-              <div className="flex items-center space-x-4">
-                <button
-                  onClick={() => handleEdit(task._id)}
-                  className="text-blue-600 hover:text-blue-700"
-                >
-                  <MdEdit size={24} />
-                </button>
-                <button
-                  onClick={() => handleDelete(task._id)}
-                  className="text-red-600 hover:text-red-700"
-                >
-                  <MdDelete size={24} />
-                </button>
-              </div>
-            </li>
-          ))
-        )}
-      </ul>
-
-      {isDeleteModalOpen && (
-        <DeleteConfirmationModal
-          onClose={closeDeleteModal}
-          onConfirm={confirmDelete}
-        />
-      )}
-
-      <ToastContainer />
+      {/* Task List Table */}
+      <div className="overflow-x-auto bg-white rounded-lg shadow-md">
+        <table className="min-w-full table-auto border-collapse">
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">
+                Title
+              </th>
+              <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">
+                Description
+              </th>
+              <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">
+                Due Date
+              </th>
+              <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">
+                Assigned To
+              </th>
+              <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">
+                Status
+              </th>
+              <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredTasks.map((task) => (
+              <tr key={task._id} className="border-b hover:bg-gray-50">
+                <td className="px-6 py-4 text-sm font-medium text-gray-800">
+                  {task.title}
+                </td>
+                <td className="px-6 py-4 text-sm text-gray-600">
+                  {task.description}
+                </td>
+                <td className="px-6 py-4 text-sm text-gray-500">
+                  {task.dueDate
+                    ? new Date(task.dueDate).toLocaleDateString()
+                    : "N/A"}
+                </td>
+                <td className="px-6 py-4 text-sm text-gray-500">
+                  {task.assignedTo ? task.assignedTo.name : "Unassigned"}
+                </td>
+                <td className="px-6 py-4 text-sm text-gray-500">
+                  <span
+                    className={`inline-block px-3 py-1 rounded-full text-sm ${
+                      task.completed
+                        ? "bg-green-100 text-green-800"
+                        : "bg-yellow-100 text-yellow-800"
+                    }`}
+                  >
+                    {task.completed ? "Completed" : "Pending"}
+                  </span>
+                </td>
+                <td className="px-6 py-4 text-sm flex space-x-2">
+                  {/* Edit Icon to navigate to UpdateTaskPage */}
+                  <Link to={`/update-task/${task._id}`}>
+                    <MdOutlineUpdate className="text-xl text-blue-500 hover:text-blue-700 transition cursor-pointer" />
+                  </Link>
+                  {/* Delete Icon */}
+                  <button
+                    onClick={() => handleDelete(task._id)}
+                    className="delete-button"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
