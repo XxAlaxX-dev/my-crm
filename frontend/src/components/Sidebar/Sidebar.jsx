@@ -4,6 +4,7 @@ import { MdDashboard } from "react-icons/md";
 import { RiContactsBook3Fill } from "react-icons/ri";
 import { BsClipboardCheckFill } from "react-icons/bs";
 import { FaStickyNote } from "react-icons/fa";
+import { CgProfile } from "react-icons/cg";
 
 const Sidebar = ({ logout }) => {
   const [isLogoutConfirming, setIsLogoutConfirming] = useState(false);
@@ -13,6 +14,7 @@ const Sidebar = ({ logout }) => {
     { name: 'Contacts', path: '/contacts', icon: <RiContactsBook3Fill size={24} /> },
     { name: 'Tasks', path: '/tasks', icon: <BsClipboardCheckFill size={24} /> },
     { name: 'Notes', path: '/notes', icon: <FaStickyNote size={24} /> },
+    {name:"Profile",path:'/users',icon:<CgProfile size={24} />}
   ];
 
   const toggleLogoutConfirmation = () => {

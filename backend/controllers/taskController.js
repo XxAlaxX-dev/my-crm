@@ -5,15 +5,17 @@ const mongoose = require("mongoose");
 // Create new task
 const createTask = async (req, res) => {
   const { title, description, dueDate, contact, assignedTo } = req.body;
-
+  console.log(req.body);  // Log the request body to check the received data
   try {
     const newTask = new Task({ title, description, dueDate, contact, assignedTo });
     await newTask.save();
     res.status(201).json(newTask);
   } catch (error) {
+    console.error(error);  // Log the error for more information
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
+
 
 // Get all tasks
 const getAllTasks = async (req, res) => {

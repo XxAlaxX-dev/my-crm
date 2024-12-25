@@ -1,17 +1,29 @@
-import React, { useState } from "react";
-import { useDispatch } from "react-redux";
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { createNewTask } from "../../redux/actions/taskActions";
+import { fetchContacts } from "../../redux/actions/otherActions";
+
 
 const CreateTaskForm = () => {
+  const dispatch = useDispatch();
+
+  // Fetch contacts from Redux
+  const { contacts } = useSelector((state) => state.contacts);
+
   const [taskData, setTaskData] = useState({
     title: "",
     description: "",
     dueDate: "",
     completed: false,
-    contact: "",
-    assignedTo: "",
+    contact: "", // This will hold the contact ID for the task
+    assignedTo: "", // This will hold the user ID for the assigned task (auto-filled)
   });
-  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (!contacts.length) {
+      dispatch(fetchContacts()); // Fetch contacts if they are not already loaded
+    }
+  }, [dispatch, contacts.length]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -20,6 +32,15 @@ const CreateTaskForm = () => {
     } else {
       setTaskData({ ...taskData, [name]: value });
     }
+  };
+
+  const handleContactChange = (e) => {
+    const selectedContactId = e.target.value;
+    setTaskData({
+      ...taskData,
+      contact: selectedContactId,
+      assignedTo: selectedContactId, // Automatically assign the selected contact's ID to 'assignedTo'
+    });
   };
 
   const handleSubmit = (e) => {
@@ -104,32 +125,38 @@ const CreateTaskForm = () => {
       {/* Contact */}
       <div>
         <label htmlFor="contact" className="block text-sm font-medium text-gray-700">
-          Contact
+          Assigned To
         </label>
-        <input
-          type="text"
+        <select
           id="contact"
           name="contact"
           value={taskData.contact}
-          onChange={handleChange}
-          placeholder="Enter contact ID or name"
+          onChange={handleContactChange} // Update the contact and automatically set assignedTo
           className="mt-2 w-full border border-gray-300 rounded-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
+        >
+          <option value="">Select a contact</option>
+          {contacts.map((contact) => (
+            <option key={contact._id} value={contact._id}>
+              {contact.firstName} {contact.lastName}
+            </option>
+          ))}
+        </select>
       </div>
 
-      {/* Assigned To */}
+      {/* Assigned To (auto-filled) */}
       <div>
         <label htmlFor="assignedTo" className="block text-sm font-medium text-gray-700">
-          Assigned To
+          Assigned To (Auto filled)
         </label>
         <input
           type="text"
           id="assignedTo"
           name="assignedTo"
-          value={taskData.assignedTo}
+          value={taskData.assignedTo || ""} // Display assignedTo automatically
           onChange={handleChange}
-          placeholder="Enter user ID or name"
+          placeholder="Assigned user ID or name"
           className="mt-2 w-full border border-gray-300 rounded-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          readOnly
         />
       </div>
 

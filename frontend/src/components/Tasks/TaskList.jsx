@@ -4,6 +4,8 @@ import { Link } from "react-router-dom"; // Import Link from react-router-dom
 import { fetchTasks, deleteTask } from "../../redux/actions/taskActions";
 import { MdOutlineUpdate } from "react-icons/md";
 import { MdDelete } from "react-icons/md";
+import { toast, ToastContainer } from "react-toastify"; // Import toast and ToastContainer
+import "react-toastify/dist/ReactToastify.css"; // Import Toastify CSS
 
 const TaskList = () => {
   const dispatch = useDispatch();
@@ -30,11 +32,11 @@ const TaskList = () => {
     if (window.confirm("Are you sure you want to delete this task?")) {
       dispatch(deleteTask(id))
         .then(() => {
-          toast.success("Task deleted successfully");
+          toast.success("Task deleted successfully"); // Show success toast
           dispatch(fetchTasks()); // Refresh the task list
         })
         .catch((error) => {
-          toast.error(error.response?.data?.message || "Failed to delete task");
+          toast.error(error.response?.data?.message || "Failed to delete task"); // Show error toast
         });
     }
   };
@@ -209,7 +211,7 @@ const TaskList = () => {
                     onClick={() => handleDelete(task._id)}
                     className="delete-button"
                   >
-                    Delete
+                    <MdDelete className="text-xl text-red-500 hover:text-red-700 transition cursor-pointer" />
                   </button>
                 </td>
               </tr>
@@ -217,6 +219,9 @@ const TaskList = () => {
           </tbody>
         </table>
       </div>
+
+      {/* Toastify container */}
+      <ToastContainer />
     </div>
   );
 };

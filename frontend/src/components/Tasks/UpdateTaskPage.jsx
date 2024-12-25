@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, useNavigate } from "react-router-dom";
 import { fetchTasks, updateTaskDetails } from "../../redux/actions/taskActions";
+import { fetchContacts } from "../../redux/actions/otherActions";
 import { toast } from "react-toastify";
 
 const UpdateTaskPage = () => {
@@ -9,8 +10,9 @@ const UpdateTaskPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  // Get tasks and loading state from Redux
+  // Get tasks and contacts from Redux
   const { tasks, loading, error } = useSelector((state) => state.tasks);
+  const { contacts } = useSelector((state) => state.contacts);
   const task = tasks.find((t) => t._id === id);
 
   const [formData, setFormData] = useState({
@@ -18,16 +20,18 @@ const UpdateTaskPage = () => {
     description: "",
     dueDate: "",
     completed: false,
-    assignedTo: "",
-    contact: "",
+    contact: "", // This will hold the contact ID for the task
   });
 
-  // Fetch tasks if not available
+  // Fetch tasks and contacts if not already available
   useEffect(() => {
     if (!tasks.length) {
       dispatch(fetchTasks());
     }
-  }, [dispatch, tasks.length]);
+    if (!contacts.length) {
+      dispatch(fetchContacts());
+    }
+  }, [dispatch, tasks.length, contacts.length]);
 
   // Update form when task data is available
   useEffect(() => {
@@ -37,8 +41,7 @@ const UpdateTaskPage = () => {
         description: task.description || "",
         dueDate: task.dueDate ? new Date(task.dueDate).toISOString().split("T")[0] : "",
         completed: task.completed || false,
-        assignedTo: task.assignedTo?._id || task.assignedTo || "",
-        contact: task.contact?._id || task.contact || "",
+        contact: task.contact?._id || task.contact || "", // Set contact ID
       });
     }
   }, [task]);
@@ -55,21 +58,20 @@ const UpdateTaskPage = () => {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     if (!formData.title.trim() || !formData.description.trim()) {
       toast.error("Title and description are required.");
       return;
     }
-  
+
     const updatedData = {
       ...(formData.title && { title: formData.title }),
       ...(formData.description && { description: formData.description }),
       ...(formData.dueDate && { dueDate: formData.dueDate }),
       completed: formData.completed,
-      ...(formData.assignedTo && { assignedTo: formData.assignedTo }),
-      ...(formData.contact && { contact: formData.contact }),
+      ...(formData.contact && { contact: formData.contact }), // Update with the selected contact
     };
-  
+
     try {
       await dispatch(updateTaskDetails(id, updatedData));
       toast.success("Task updated successfully!");
@@ -79,7 +81,6 @@ const UpdateTaskPage = () => {
       toast.error(error.response?.data?.message || "Failed to update task");
     }
   };
-  
 
   // Show loading state
   if (loading) {
@@ -156,31 +157,23 @@ const UpdateTaskPage = () => {
         </div>
 
         <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="assignedTo">
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="contact">
             Assigned To
           </label>
-          <input
-            id="assignedTo"
-            type="text"
-            name="assignedTo"
-            value={formData.assignedTo}
-            onChange={handleChange}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-          />
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="contact">
-            Contact
-          </label>
-          <input
+          <select
             id="contact"
-            type="text"
             name="contact"
             value={formData.contact}
             onChange={handleChange}
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-          />
+          >
+            <option value="">Select a contact</option>
+            {contacts.map((contact) => (
+              <option key={contact._id} value={contact._id}>
+                {contact.firstName} {contact.lastName}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="mb-6">

@@ -18,6 +18,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import UpdateTaskPage from "./components/Tasks/UpdateTaskPage";
 import CreateTaskForm from "./components/Tasks/CreateTaskForm";
+import UserList from "./components/Users/UserList";
 
 
 const AppContent = () => {
@@ -58,7 +59,7 @@ const AppContent = () => {
               <Route path="/update-task/:id"  element={<PrivateRoute><UpdateTaskPage/></PrivateRoute>} />
               <Route path="/create-task"  element={<PrivateRoute><CreateTaskForm/></PrivateRoute>} />
 
-        
+              <Route path="/users" element={<PrivateRoute><UserList /></PrivateRoute> } />
               
               <Route path="/notes" element={<PrivateRoute><Notes /></PrivateRoute>} />
 

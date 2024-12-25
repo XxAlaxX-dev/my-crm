@@ -1,13 +1,24 @@
-// backend/routes/userRoutes.js
 const express = require('express');
-const { getUserProfile, updateUserProfile } = require('../controllers/userController');
-const { authenticate } = require('../middleware/authMiddleware');  // Assuming you have a middleware to authenticate users
+const {
+  getUserProfile,
+  updateUserProfile,
+  getAllUsers,
+  deleteUser,
+} = require('../controllers/userController');
+const { authenticate, authorize } = require('../middleware/authMiddleware');
+
 const router = express.Router();
 
-// Get user profile (authenticated user)
+// Get authenticated user profile
 router.get('/profile', authenticate, getUserProfile);
 
-// Update user profile (authenticated user)
+// Get all users (Admin only)
+router.get('/', authenticate, authorize(['Admin']), getAllUsers);
+
+// Update user profile (Authenticated user)
 router.put('/profile', authenticate, updateUserProfile);
+
+// Delete a user (Admin only)
+router.delete('/:id', authenticate, authorize(['Admin']), deleteUser);
 
 module.exports = router;
