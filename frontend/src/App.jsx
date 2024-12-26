@@ -68,7 +68,7 @@ const AppContent = () => {
     const storedData = localStorage.getItem("user");
     const parsedData = storedData ? JSON.parse(storedData) : null;
     return parsedData?.user?.name || "Guest";
-  }, []);
+  }, [user]);
 
   return (
     <Router>

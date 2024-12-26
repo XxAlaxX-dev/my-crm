@@ -1,13 +1,16 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { MdDashboard } from "react-icons/md";
 import { RiContactsBook3Fill } from "react-icons/ri";
 import { BsClipboardCheckFill } from "react-icons/bs";
 import { FaStickyNote } from "react-icons/fa";
 import { CgProfile } from "react-icons/cg";
+import { AuthContext } from '../../contexts/AuthContext';
 
-const Sidebar = ({ logout }) => {
+const Sidebar = () => {
   const [isLogoutConfirming, setIsLogoutConfirming] = useState(false);
+  //const { user } = useContext(AuthContext);
+const {logout} = useContext(AuthContext);
 
   const menuItems = [
     { name: 'Dashboard', path: '/dashboard', icon: <MdDashboard size={24}/> },

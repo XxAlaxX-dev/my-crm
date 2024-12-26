@@ -23,6 +23,7 @@ const AuthProvider = ({ children }) => {
   const logout = () => {
     authService.logout();
     setUser(null);
+    
   };
 
   return (
