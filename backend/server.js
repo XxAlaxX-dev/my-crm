@@ -8,7 +8,7 @@ const contactRoutes = require("./routes/contactRoutes");
 const taskRoutes = require("./routes/taskRoutes");
 const noteRoutes = require("./routes/noteRoutes");
 const { seedAdminUser } = require("./utils/seedAdmin");
-
+const path = require("path");
 const app = express();
 
 // Connect to the database
@@ -35,6 +35,8 @@ app.use(
 );
 
 app.use(express.json()); // Middleware to parse JSON bodies
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 
 // Constants
 const PORT = process.env.PORT || 4000;

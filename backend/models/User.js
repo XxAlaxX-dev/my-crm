@@ -20,6 +20,14 @@ const userSchema = mongoose.Schema({
     enum: ['Admin', 'Manager', 'Employee'],
     default: 'Employee',
   },
+  image: {
+    type: String, // To store the file path or URL
+    required: false,
+  },
+  image: {
+    type: String, // To store the file path or URL
+    required: false,
+  },
 }, {
   timestamps: true, // Automatically adds createdAt and updatedAt fields
 });

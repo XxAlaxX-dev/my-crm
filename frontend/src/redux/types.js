@@ -1,5 +1,4 @@
-// types.js
-
+// Auth Types
 export const LOGIN_SUCCESS = "LOGIN_SUCCESS";
 export const LOGIN_FAILURE = "LOGIN_FAILURE";
 export const LOGOUT = "LOGOUT";
@@ -28,6 +27,7 @@ export const DELETE_TASK_FAILURE = "DELETE_TASK_FAILURE";
 export const UPDATE_TASK_REQUEST = "UPDATE_TASK_REQUEST";
 export const UPDATE_TASK_SUCCESS = "UPDATE_TASK_SUCCESS";
 export const UPDATE_TASK_FAILURE = "UPDATE_TASK_FAILURE";
+
 // User Types
 export const FETCH_USERS_REQUEST = "FETCH_USERS_REQUEST";
 export const FETCH_USERS_SUCCESS = "FETCH_USERS_SUCCESS";
@@ -36,3 +36,6 @@ export const CREATE_USER_FAILURE = "CREATE_USER_FAILURE";
 export const CREATE_USER_SUCCESS = "CREATE_USER_SUCCESS";
 export const DELETE_USER_SUCCESS = "DELETE_USER_SUCCESS";  // <-- Added this line
 export const DELETE_USER_FAILURE = "DELETE_USER_FAILURE";  // <-- Added this line
+export const UPDATE_USER_REQUEST = "UPDATE_USER_REQUEST";  // <-- Added this line
+export const UPDATE_USER_SUCCESS = "UPDATE_USER_SUCCESS";
+export const UPDATE_USER_FAILURE = "UPDATE_USER_FAILURE";

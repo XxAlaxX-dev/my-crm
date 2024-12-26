@@ -14,7 +14,14 @@ const getAllUsers = async (req, res) => {
 // Get authenticated user's profile
 const getUserProfile = async (req, res) => {
   try {
-    res.status(200).json(req.user);
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.status(200).json({
+      success: true,
+      user,
+    });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
@@ -22,20 +29,20 @@ const getUserProfile = async (req, res) => {
 
 // Update authenticated user's profile
 const updateUserProfile = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, role } = req.body;
 
   try {
-    const user = await User.findById(req.user.id);
+    const user = await User.findById(req.params.id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
     if (name) user.name = name;
     if (email) user.email = email;
-    if (password) user.password = await bcrypt.hash(password, 10);
+    if (role) user.role = role; // Only Admin can update roles
 
     await user.save();
-    res.status(200).json({ message: 'Profile updated successfully' });
+    res.status(200).json({ message: 'User updated successfully', user });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
@@ -44,7 +51,7 @@ const updateUserProfile = async (req, res) => {
 // Delete a user (Admin only)
 const deleteUser = async (req, res) => {
   try {
-    const user = await User.findByIdAndDelete(req.params.id);  // Find and delete the user by ID
+    const user = await User.findByIdAndDelete(req.params.id); // Find and delete the user by ID
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -55,4 +62,34 @@ const deleteUser = async (req, res) => {
   }
 };
 
-module.exports = { getAllUsers, getUserProfile, updateUserProfile, deleteUser };
+// Upload user profile image
+const uploadUserProfileImage = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Save image path to user
+    user.image = req.file.path; // Save the file path to the image field
+    await user.save();
+
+    res.status(200).json({
+      message: 'Image uploaded successfully',
+      user,
+    });
+  } catch (error) {
+    console.error('Error uploading image:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+module.exports = {
+  getAllUsers,
+  getUserProfile,
+  updateUserProfile,
+  deleteUser,
+  uploadUserProfileImage,
+};

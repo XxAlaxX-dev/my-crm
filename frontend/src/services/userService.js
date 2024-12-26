@@ -31,7 +31,17 @@ export const getUsers = async () => {
     throw error; // Re-throw the error after logging it
   }
 };
-
+//get signe lprofile 
+export const getSignedProfile = async () => {
+  try {
+    const config = getConfig();
+    const response = await axios.get(`${API_URL}/profile`, config);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching signed profile:', error);
+    throw error; // Re-throw the error after logging it
+  }
+}
 // Create new user
 export const createUser = async (userData) => {
   try {

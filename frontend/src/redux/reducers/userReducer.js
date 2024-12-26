@@ -5,7 +5,10 @@ import {
   CREATE_USER_FAILURE,
   DELETE_USER_SUCCESS,
   DELETE_USER_FAILURE,
-  FETCH_USERS_REQUEST
+  FETCH_USERS_REQUEST,
+  UPDATE_USER_SUCCESS,
+  UPDATE_USER_FAILURE,
+  UPDATE_USER_REQUEST,
 } from "../types";
 
 const initialState = {
@@ -51,6 +54,12 @@ const userReducer = (state = initialState, action) => {
         loading: false,
         error: null,
       };
+    case UPDATE_USER_REQUEST:
+      return { ...state, loading: true };
+    case UPDATE_USER_SUCCESS:
+      return { ...state, loading: false, userDetails: action.payload };
+    case UPDATE_USER_FAILURE:
+      return { ...state, loading: false, error: action.payload };
 
     default:
       return state;

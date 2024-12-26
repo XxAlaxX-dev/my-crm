@@ -21,6 +21,7 @@ import Sidebar from "./components/Sidebar/Sidebar";
 import PrivateRoute from "./components/PrivateRoute";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import UpdateUser from "./components/Users/UpdateUser";
 
 const Header = ({ userName }) => (
   <header className="bg-white shadow-md p-6 sticky top-0 z-10">
@@ -58,6 +59,7 @@ const privateRoutes = [
   { path: "/update-task/:id", element: <UpdateTaskPage /> },
   { path: "/create-task", element: <CreateTaskForm /> },
   { path: "/users", element: <UserList /> },
+  {path:"/update-user/:id",element:<UpdateUser />},
   { path: "/notes", element: <Notes /> },
 ];
 
